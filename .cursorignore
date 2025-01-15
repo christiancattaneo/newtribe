@@ -1,0 +1,50 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Firebase config and keys
+firebase-admin.json
+**/firebase-admin*.json
+**/service-account*.json
+**/serviceAccount*.json
+**/key*.json
+
+# Other potential sensitive files
+**/*.pem
+**/*.key
+**/*.keystore
+**/*.p12
+**/*.pfx
+**/*.cer
+**/*.crt
+**/*.jks
+
+# Local config files that might contain secrets
+config.local.js
+config.local.json
+local.settings.json
+settings.local.json
+credentials.json
+secrets.json
+**/secrets.*
+**/credentials.*
+
+# IDE files that might cache sensitive data
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Log files that might contain sensitive data
+*.log
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts and dependencies
+node_modules/
+dist/
+build/
+.cache/ 
