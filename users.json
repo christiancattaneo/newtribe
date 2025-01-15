@@ -1,0 +1,23 @@
+{"users": [
+{
+  "localId": "Lp6AwzuXQMRHXL9nadqNgLEjsI63",
+  "email": "christian.cattaneo@gauntletai.com",
+  "emailVerified": false,
+  "passwordHash": "vfqbICYh0kpgM7GVhC7qztNY37Dx1W38AdKZDKE1zaWUdb6Jw657F5twupwtN5rqZgY3jGK7fpm70ccQhiqb9w==",
+  "salt": "egst7p72eJgZsA==",
+  "displayName": "Christian Cattaneo",
+  "lastSignedInAt": "1736827310627",
+  "createdAt": "1736706399351",
+  "providerUserInfo": []
+},
+{
+  "localId": "iJKN0bEq6La9dbTsleyxVkEL63P2",
+  "email": "christiandcattaneo@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "3sx6CkSp8+/+rbQjNuYig/fH8/IHDXYJXwU+Y5xMyxk3j4/+n6MVg+nOlOOnKz0wX+RVbYShRR1oHDSUKJ+2BA==",
+  "salt": "AWVT67Ypa/isRA==",
+  "displayName": "Christian",
+  "lastSignedInAt": "1736829136531",
+  "createdAt": "1736733947579",
+  "providerUserInfo": []
+}]}

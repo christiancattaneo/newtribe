@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isImageType(contentType) {
+      return contentType.matches('image/.*');
+    }
+
+    // Profile pictures
+    match /avatars/{userId}/{fileName} {
+      // Anyone can read profile pictures
+      allow read: if isSignedIn();
+      
+      // Only the owner can upload their profile picture
+      allow create, update: if isOwner(userId)
+        && isImageType(request.resource.contentType)
+        && request.resource.size < 5 * 1024 * 1024; // 5MB max
+      
+      // Only the owner can delete their profile picture
+      allow delete: if isOwner(userId);
+    }
+
+    // Message attachments
+    match /uploads/{userId}/{fileName} {
+      // Anyone can read message attachments
+      allow read: if isSignedIn();
+      
+      // Only the owner can upload attachments
+      allow create: if isOwner(userId)
+        && request.resource.size < 10 * 1024 * 1024; // 10MB max
+      
+      // Only the owner can delete their attachments
+      allow delete: if isOwner(userId);
+    }
+  }
+}
