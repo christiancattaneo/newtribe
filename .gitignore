@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 firebase-admin.json
+
+# Environment files
+.env
+.env.*
+!.env.example
