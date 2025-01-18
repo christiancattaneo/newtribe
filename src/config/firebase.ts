@@ -36,7 +36,7 @@ if (import.meta.env.DEV) {
   console.log('[Firebase Config] Connecting to emulators');
   connectAuthEmulator(auth, 'http://localhost:9099');
   connectFunctionsEmulator(functions, 'localhost', 5001);
-  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectFirestoreEmulator(db, 'localhost', 8081);
   connectDatabaseEmulator(rtdb, 'localhost', 9000);
   connectStorageEmulator(storage, 'localhost', 9199);
 }

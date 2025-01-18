@@ -34,3 +34,8 @@ firebase-admin.json
 .runtimeconfig.json
 **/service-account-*.json
 **/firebase-adminsdk-*.json
+**/functions/.runtimeconfig.json
+
+# Build output
+dist/
+build/

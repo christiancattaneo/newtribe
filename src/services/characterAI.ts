@@ -1,39 +1,37 @@
 import { Character } from '../types/character';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../config/firebase';
-
-interface ResponseData {
-  response: string;
-}
+import { CharacterDialogueService } from './characterDialogues';
+import { CharacterResponseService } from './characterResponses';
 
 export class CharacterAIService {
+  private dialogueService: CharacterDialogueService;
+  private responseService: CharacterResponseService;
+
+  constructor() {
+    this.dialogueService = new CharacterDialogueService();
+    this.responseService = new CharacterResponseService();
+  }
+
   async loadCharacterDialogues(characterId: string): Promise<boolean> {
-    console.debug(`Loading dialogues for ${characterId} is no longer needed with Pinecone`);
-    return true;
+    return this.dialogueService.loadCharacterDialogues(characterId);
   }
 
   async generateResponse(character: Character, query: string): Promise<string> {
     console.log('[CharacterAIService] Generating response:', { character: character.name, query });
     
     try {
-      const generateChatResponse = httpsCallable<{
-        message: string; 
-        characterId: string;
-      }, ResponseData>(
-        functions, 
-        'generateChatResponse'
-      );
-
-      const result = await generateChatResponse({
-        message: query,
-        characterId: character.id
-      });
-
-      console.log('[CharacterAIService] Response generated:', result.data.response);
-      return result.data.response;
+      // Get response directly
+      const response = await this.dialogueService.searchSimilarDialogues(query, character.id);
+      
+      console.log('[CharacterAIService] Response generated:', response);
+      return response;
     } catch (error) {
       console.error('[CharacterAIService] Error generating response:', error);
       throw error;
     }
+  }
+
+  async generateSpeech(text: string, characterId: string): Promise<string> {
+    console.log('[CharacterAIService] Generating speech:', { characterId, text });
+    return this.responseService.generateSpeech(text, characterId);
   }
 } 

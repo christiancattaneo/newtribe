@@ -27,4 +27,5 @@ export interface ChannelContextType {
   sendDirectMessage: (content: string, attachments?: { url: string; type: string; name: string }[]) => Promise<void>;
   getAvailableUsers: () => Promise<User[]>;
   searchMessages: (query: string) => Promise<SearchResult[]>;
+  updateCurrentCharacter: (characterId: string | null) => Promise<void>;
 } 

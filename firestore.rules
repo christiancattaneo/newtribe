@@ -34,6 +34,16 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow update: if isSignedIn();
       allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (
+          resource.data.userId == request.auth.uid || 
+          isReactionUpdate()
+        );
+        allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      }
     }
 
     match /directMessages/{dmId} {
