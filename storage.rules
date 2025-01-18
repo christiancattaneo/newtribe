@@ -18,6 +18,11 @@ service firebase.storage {
       return contentType.matches('image/.*');
     }
 
+    // Audio files for AI characters
+    match /audio/{character}/{fileName} {
+      allow read, write: if isSignedIn();
+    }
+
     // Profile pictures
     match /avatars/{userId}/{fileName} {
       // Anyone can read profile pictures

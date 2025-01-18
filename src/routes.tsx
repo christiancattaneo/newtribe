@@ -1,9 +1,11 @@
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Dashboard from './components/Dashboard';
+import { ChannelProvider } from './contexts/channel/ChannelProvider';
 
 export default function AppRoutes() {
   return (
@@ -15,7 +17,9 @@ export default function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <ChannelProvider>
+              <Dashboard />
+            </ChannelProvider>
           </ProtectedRoute>
         }
       />

@@ -20,11 +20,11 @@ export interface ChannelContextType {
   sendMessage: (content: string, attachments?: { url: string; type: string; name: string }[], parentMessageId?: string) => Promise<void>;
   addReaction: (messageId: string, emoji: string) => Promise<void>;
   removeReaction: (messageId: string, emoji: string) => Promise<void>;
-  uploadFile: (file: File) => Promise<{ url: string; type: string; name: string }>;
   getThreadMessages: (threadId: string) => Message[];
   getThreadRepliesCount: (threadId: string) => number;
   selectDirectMessage: (userId: string) => Promise<void>;
   sendDirectMessage: (content: string, attachments?: { url: string; type: string; name: string }[]) => Promise<void>;
   getAvailableUsers: () => Promise<User[]>;
   searchMessages: (query: string) => Promise<SearchResult[]>;
+  updateCurrentCharacter: (characterId: string | null) => Promise<void>;
 } 
