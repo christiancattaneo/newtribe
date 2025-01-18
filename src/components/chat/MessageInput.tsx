@@ -48,16 +48,10 @@ export default function MessageInput({
     }
 
     try {
-      const attachments = selectedFile ? [{
-        url: URL.createObjectURL(selectedFile),
-        type: selectedFile.type,
-        name: selectedFile.name
-      }] : undefined;
-      
       if (parentMessageId) {
-        await sendMessage(message, attachments, parentMessageId);
+        await sendMessage(message, parentMessageId);
       } else {
-        await sendMessage(message, attachments);
+        await sendMessage(message);
       }
       
       setMessage('');

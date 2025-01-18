@@ -14,12 +14,15 @@ export interface Message {
   content: string;
   userId: string;
   createdAt: Date;
-  updatedAt?: Date;
+  updatedAt: Date;
   reactions: Record<string, string[]>;
+  isEdited: boolean;
+  channelId?: string;
+  directMessageId?: string;
+  chatId?: string;
   threadId?: string;
   parentMessageId?: string;
   attachments?: { url: string; type: string; name: string }[];
-  isEdited?: boolean;
 }
 
 export interface DirectMessage extends Message {

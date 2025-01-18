@@ -9,17 +9,20 @@ import {
   setDoc,
   updateDoc,
   serverTimestamp,
-  addDoc
+  addDoc,
+  writeBatch,
+  getDocs
 } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 import { DirectMessage } from '../../../types/channel';
 import { User } from '../../../types';
 import { v4 as uuidv4 } from 'uuid';
+import debounce from 'lodash/debounce';
 
 interface UseDirectMessagesProps {
   currentUser: User | null;
   users: Record<string, User>;
-  setUsers: (users: Record<string, User>) => void;
+  setUsers: (users: Record<string, User> | ((prev: Record<string, User>) => Record<string, User>)) => void;
   clearCurrentChat: () => void;
   currentDirectMessage: DirectMessage | null;
   setCurrentDirectMessage: (dm: DirectMessage | null) => void;
@@ -34,6 +37,7 @@ export function useDirectMessages({
   setCurrentDirectMessage
 }: UseDirectMessagesProps) {
   const [directMessages, setDirectMessages] = useState<DirectMessage[]>([]);
+  const [isSelecting, setIsSelecting] = useState(false);
 
   // Effect to load direct messages
   useEffect(() => {
@@ -55,7 +59,7 @@ export function useDirectMessages({
         const data = doc.data();
         // Add all participants except current user to fetch list
         data.participants.forEach((participantId: string) => {
-          if (participantId !== currentUser.uid) {
+          if (participantId !== currentUser.uid && !users[participantId]) {
             userIdsToFetch.add(participantId);
           }
         });
@@ -67,77 +71,110 @@ export function useDirectMessages({
           userId: data.userId || '',
           reactions: data.reactions || {},
           createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date()
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          isEdited: data.isEdited || false
         };
         dmData.push(dm);
       });
 
-      // Fetch user data for all participants
-      const userPromises = Array.from(userIdsToFetch).map(async (userId) => {
-        if (!users[userId]) {
-          const userDoc = await getDoc(doc(db, 'users', userId));
-          if (userDoc.exists()) {
-            setUsers({
-              ...users,
-              [userId]: { uid: userDoc.id, ...userDoc.data() } as User
-            });
+      // Only fetch users that we don't already have and aren't AI users
+      if (userIdsToFetch.size > 0) {
+        const userPromises = Array.from(userIdsToFetch).map(async (userId) => {
+          // Skip if we already have the user or if it's an AI user
+          if (users[userId] || userId.startsWith('ai-')) {
+            return;
           }
-        }
-      });
 
-      await Promise.all(userPromises);
+          try {
+            const userDocRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+              const userData = { uid: userDoc.id, ...userDoc.data() } as User;
+              setUsers((prev: Record<string, User>) => ({
+                ...prev,
+                [userId]: userData
+              }));
+            }
+          } catch (error) {
+            console.error(`[useDirectMessages] Error fetching user ${userId}:`, error);
+          }
+        });
+        await Promise.all(userPromises);
+      }
+      
       setDirectMessages(dmData);
     });
 
     return () => unsubscribe();
   }, [currentUser, users, setUsers]);
 
-  const selectDirectMessage = useCallback(async (userId: string) => {
-    console.log('[useDirectMessages] Selecting DM with user:', userId);
-    
-    if (!currentUser) {
-      console.error('[useDirectMessages] No current user');
-      throw new Error('Must be signed in to create a DM');
-    }
+  const selectDirectMessage = useCallback(
+    (userId: string) => {
+      const debouncedSelect = debounce(async (id: string) => {
+        console.log('[useDirectMessages] Selecting DM with user:', id);
+        
+        if (!currentUser) {
+          console.error('[useDirectMessages] No current user');
+          throw new Error('Must be signed in to create a DM');
+        }
 
-    await clearCurrentChat();
-    
-    if (!userId) return;
-    
-    // Find existing DM or create new one
-    const existingDM = directMessages.find(dm => 
-      dm.participants.includes(userId) && dm.participants.includes(currentUser.uid)
-    );
+        if (isSelecting) {
+          console.log('[useDirectMessages] Already selecting a DM');
+          return;
+        }
 
-    if (existingDM) {
-      console.log('[useDirectMessages] Found existing DM:', existingDM);
-      setCurrentDirectMessage(existingDM);
-      return;
-    }
+        setIsSelecting(true);
 
-    // Create new DM
-    const newDM = {
-      id: uuidv4(),
-      participants: [currentUser.uid, userId],
-      content: '',
-      userId: currentUser.uid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      reactions: {}
-    };
+        try {
+          await clearCurrentChat();
+          
+          if (!id) {
+            setIsSelecting(false);
+            return;
+          }
+          
+          // Find existing DM by checking both possible participant orders
+          const existingDM = directMessages.find(dm => 
+            (dm.participants.includes(id) && dm.participants.includes(currentUser.uid))
+          );
 
-    try {
-      await setDoc(doc(db, 'directMessages', newDM.id), newDM);
-      setCurrentDirectMessage({
-        ...newDM,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-    } catch (error) {
-      console.error('[useDirectMessages] Error creating DM:', error);
-      throw error;
-    }
-  }, [currentUser, directMessages, clearCurrentChat, setCurrentDirectMessage]);
+          if (existingDM) {
+            console.log('[useDirectMessages] Found existing DM:', existingDM);
+            setCurrentDirectMessage(existingDM);
+            setIsSelecting(false);
+            return;
+          }
+
+          // Create new DM
+          const newDM = {
+            id: uuidv4(),
+            participants: [currentUser.uid, id].sort(), // Sort to ensure consistent order
+            content: '',
+            userId: currentUser.uid,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            reactions: {},
+            isEdited: false
+          };
+
+          await setDoc(doc(db, 'directMessages', newDM.id), newDM);
+          setCurrentDirectMessage({
+            ...newDM,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+        } catch (error) {
+          console.error('[useDirectMessages] Error creating DM:', error);
+          throw error;
+        } finally {
+          setIsSelecting(false);
+        }
+      }, 300);
+
+      return debouncedSelect(userId);
+    },
+    [currentUser, directMessages, clearCurrentChat, setCurrentDirectMessage, isSelecting]
+  );
 
   const sendDirectMessage = useCallback(async (content: string, attachments?: { url: string; type: string; name: string }[], parentMessageId?: string): Promise<void> => {
     if (!currentUser || !currentDirectMessage) return;
@@ -177,11 +214,52 @@ export function useDirectMessages({
     });
   }, [currentUser, currentDirectMessage]);
 
+  const deleteDirectMessage = useCallback(async (dmId: string) => {
+    if (!currentUser) {
+      throw new Error('Must be signed in to delete a DM');
+    }
+
+    const dm = directMessages.find(d => d.id === dmId);
+    if (!dm) return;
+
+    try {
+      // Delete all messages in the DM first
+      const messagesQuery = query(
+        collection(db, 'messages'),
+        where('directMessageId', '==', dmId)
+      );
+      const messagesSnapshot = await getDocs(messagesQuery);
+      
+      // Create a new batch
+      const batch = writeBatch(db);
+      
+      // Add message deletions to batch
+      messagesSnapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      
+      // Add DM document deletion to batch
+      batch.delete(doc(db, 'directMessages', dmId));
+      
+      // Commit the batch
+      await batch.commit();
+
+      // If this was the current DM, clear it
+      if (currentDirectMessage?.id === dmId) {
+        clearCurrentChat();
+      }
+    } catch (error) {
+      console.error('[useDirectMessages] Error deleting DM:', error);
+      throw error;
+    }
+  }, [currentUser, directMessages, currentDirectMessage, clearCurrentChat]);
+
   return {
     directMessages,
     currentDirectMessage,
     setCurrentDirectMessage,
     selectDirectMessage,
-    sendDirectMessage
+    sendDirectMessage,
+    deleteDirectMessage
   };
 } 

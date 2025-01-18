@@ -22,11 +22,15 @@ export default function ChatSidebar({ onCreateChannel }: ChatSidebarProps) {
     selectChannel,
     selectDirectMessage,
     setCurrentCharacter,
-    getAvailableUsers
+    getAvailableUsers,
+    deleteChannel,
+    deleteDirectMessage
   } = useChannel();
   const { currentUser } = useAuth();
   const [showUserDialog, setShowUserDialog] = useState(false);
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [hoveredChannelId, setHoveredChannelId] = useState<string | null>(null);
+  const [hoveredDMId, setHoveredDMId] = useState<string | null>(null);
 
   const handleCreateDM = async () => {
     const users = await getAvailableUsers();
@@ -57,15 +61,32 @@ export default function ChatSidebar({ onCreateChannel }: ChatSidebarProps) {
         </div>
         <div className="space-y-1">
           {channels.map((channel: Channel) => (
-            <button
+            <div
               key={channel.id}
-              className={`w-full text-left px-2 py-1 rounded hover:bg-base-300 ${
-                currentChannel?.id === channel.id ? 'bg-base-300' : ''
-              }`}
-              onClick={() => selectChannel(channel.id)}
+              className="relative group"
+              onMouseEnter={() => setHoveredChannelId(channel.id)}
+              onMouseLeave={() => setHoveredChannelId(null)}
             >
-              # {channel.name}
-            </button>
+              <button
+                className={`w-full text-left px-2 py-1 rounded hover:bg-base-300 ${
+                  currentChannel?.id === channel.id ? 'bg-base-300' : ''
+                }`}
+                onClick={() => selectChannel(channel.id)}
+              >
+                # {channel.name}
+              </button>
+              {hoveredChannelId === channel.id && channel.createdBy === currentUser?.uid && (
+                <button
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteChannel(channel.id);
+                  }}
+                >
+                  🗑️
+                </button>
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -85,15 +106,32 @@ export default function ChatSidebar({ onCreateChannel }: ChatSidebarProps) {
           {directMessages.map((dm: DirectMessage) => {
             const otherUser = users[dm.participants.find(id => id !== currentUser?.uid) || ''];
             return (
-              <button
+              <div
                 key={dm.id}
-                className={`w-full text-left px-2 py-1 rounded hover:bg-base-300 ${
-                  currentDirectMessage?.id === dm.id ? 'bg-base-300' : ''
-                }`}
-                onClick={() => selectDirectMessage(otherUser.uid)}
+                className="relative group"
+                onMouseEnter={() => setHoveredDMId(dm.id)}
+                onMouseLeave={() => setHoveredDMId(null)}
               >
-                @ {otherUser?.displayName || 'Unknown User'}
-              </button>
+                <button
+                  className={`w-full text-left px-2 py-1 rounded hover:bg-base-300 ${
+                    currentDirectMessage?.id === dm.id ? 'bg-base-300' : ''
+                  }`}
+                  onClick={() => selectDirectMessage(otherUser.uid)}
+                >
+                  @ {otherUser?.displayName || 'Unknown User'}
+                </button>
+                {hoveredDMId === dm.id && (
+                  <button
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteDirectMessage(dm.id);
+                    }}
+                  >
+                    🗑️
+                  </button>
+                )}
+              </div>
             );
           })}
         </div>

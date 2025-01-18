@@ -25,7 +25,12 @@ export function useChannelMessages({
 
   const fetchMessageUsers = useCallback(async (userIds: Set<string>) => {
     const userPromises = Array.from(userIds).map(async (userId) => {
-      if (!users[userId]) {
+      // Skip if we already have the user or if it's an AI user
+      if (users[userId] || userId.startsWith('ai-')) {
+        return;
+      }
+      
+      try {
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
           setUsers(prev => ({
@@ -33,6 +38,8 @@ export function useChannelMessages({
             [userId]: { uid: userDoc.id, ...userDoc.data() } as User
           }));
         }
+      } catch (error) {
+        console.error(`[useChannelMessages] Error fetching user ${userId}:`, error);
       }
     });
     return Promise.all(userPromises);
@@ -101,6 +108,43 @@ export function useChannelMessages({
         where('directMessageId', '==', currentDirectMessage.id),
         orderBy('createdAt', 'asc')
       );
+
+      const unsubscribe = onSnapshot(messagesQuery, async (snapshot) => {
+        console.log('[useChannelMessages] DM Messages loaded:', {
+          count: snapshot.size
+        });
+
+        const allMessages = snapshot.docs.map(doc => {
+          const data = doc.data();
+          const timestamp = data.timestamp?.toDate() || data.createdAt?.toDate();
+          if (!timestamp) {
+            console.warn(`Message ${doc.id} has no valid timestamp, using current time`);
+          }
+          return {
+            id: doc.id,
+            content: data.content || '',
+            userId: data.userId || '',
+            channelId: data.channelId,
+            directMessageId: data.directMessageId,
+            timestamp: timestamp || new Date(),
+            createdAt: timestamp || new Date(),
+            updatedAt: data.updatedAt?.toDate() || new Date(),
+            reactions: data.reactions || {},
+            isEdited: data.isEdited || false,
+            attachments: data.attachments || [],
+            threadId: data.threadId,
+            parentMessageId: data.parentMessageId
+          } as Message;
+        });
+
+        const userIdsToFetch = new Set<string>(allMessages.map(msg => msg.userId));
+        await fetchMessageUsers(userIdsToFetch);
+        setMessages(allMessages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()));
+      }, (error) => {
+        console.error('[useChannelMessages] Error in DM messages listener:', error);
+      });
+
+      return () => unsubscribe();
     } else if (currentCharacter) {
       // For AI chats, get messages where chatId matches the AI chat ID
       const aiChatId = `ai-chat-${currentUser.uid}-${currentCharacter}`;
@@ -110,6 +154,45 @@ export function useChannelMessages({
         where('chatId', '==', aiChatId),
         orderBy('createdAt', 'asc')
       );
+
+      const unsubscribe = onSnapshot(messagesQuery, async (snapshot) => {
+        console.log('[useChannelMessages] AI chat messages loaded:', {
+          count: snapshot.size,
+          messages: snapshot.docs.map(d => ({ id: d.id, content: d.data().content }))
+        });
+
+        const allMessages = snapshot.docs.map(doc => {
+          const data = doc.data();
+          const timestamp = data.timestamp?.toDate() || data.createdAt?.toDate();
+          if (!timestamp) {
+            console.warn(`Message ${doc.id} has no valid timestamp, using current time`);
+          }
+          return {
+            id: doc.id,
+            content: data.content || '',
+            userId: data.userId || '',
+            channelId: data.channelId,
+            directMessageId: data.directMessageId,
+            chatId: data.chatId,
+            timestamp: timestamp || new Date(),
+            createdAt: timestamp || new Date(),
+            updatedAt: data.updatedAt?.toDate() || new Date(),
+            reactions: data.reactions || {},
+            isEdited: data.isEdited || false,
+            attachments: data.attachments || [],
+            threadId: data.threadId,
+            parentMessageId: data.parentMessageId
+          } as Message;
+        });
+
+        const userIdsToFetch = new Set<string>(allMessages.map(msg => msg.userId));
+        await fetchMessageUsers(userIdsToFetch);
+        setMessages(allMessages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()));
+      }, (error) => {
+        console.error('[useChannelMessages] Error in AI chat messages listener:', error);
+      });
+
+      return () => unsubscribe();
     } else {
       console.log('[useChannelMessages] No active chat, clearing messages');
       setMessages([]);

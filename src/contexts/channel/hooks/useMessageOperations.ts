@@ -1,10 +1,8 @@
 import { doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../../config/firebase';
+import { db } from '../../../config/firebase';
 import { Message, Channel, DirectMessage } from '../../../types/channel';
 import { User } from '../../../types';
 import { v4 as uuidv4 } from 'uuid';
-import { Dispatch, SetStateAction } from 'react';
 import { CharacterAIService } from '../../../services/characterAI';
 import { CHARACTERS } from '../../../types/character';
 
@@ -13,7 +11,7 @@ interface UseMessageOperationsProps {
   currentChannel: Channel | null;
   currentDirectMessage: DirectMessage | null;
   currentCharacter: string | null;
-  setUsers: Dispatch<SetStateAction<Record<string, User>>>;
+  setUsers: (users: Record<string, User> | ((prev: Record<string, User>) => Record<string, User>)) => void;
 }
 
 type MessageInput = Omit<Message, 'id' | 'createdAt' | 'updatedAt'> & {
@@ -34,7 +32,7 @@ export function useMessageOperations({
 }: UseMessageOperationsProps) {
   const characterService = new CharacterAIService();
 
-  const sendMessage = async (content: string, attachments: { url: string; type: string; name: string }[] = [], parentMessageId?: string, overrideUser?: { displayName: string; photoURL: string; uid: string }): Promise<void> => {
+  const sendMessage = async (content: string, parentMessageId?: string, overrideUser?: { displayName: string; photoURL: string; uid: string }): Promise<void> => {
     if (!currentUser && !overrideUser) return;
 
     // Add override user to users record if provided
@@ -59,8 +57,7 @@ export function useMessageOperations({
       createdAt: serverTimestamp() as unknown as Timestamp,
       updatedAt: serverTimestamp() as unknown as Timestamp,
       reactions: {},
-      isEdited: false,
-      attachments
+      isEdited: false
     };
 
     if (parentMessageId) {
@@ -94,20 +91,8 @@ export function useMessageOperations({
         // Generate AI response
         const aiResponse = await characterService.generateResponse(character, content);
 
-        // Generate message ID first
-        const aiMessageId = uuidv4();
-
-        // Generate speech for the AI response
-        console.log('[useMessageOperations] Generating speech for AI response');
-        const audioUrl = await characterService.generateSpeech(aiResponse, character.id);
-        
-        // Upload audio to Firebase Storage
-        const audioBlob = await fetch(audioUrl).then(r => r.blob());
-        const audioRef = ref(storage, `audio/${character.id}/${aiMessageId}.mp3`);
-        await uploadBytes(audioRef, audioBlob);
-        const storedAudioUrl = await getDownloadURL(audioRef);
-
         // Send AI response as a new message
+        const aiMessageId = uuidv4();
         const aiMessageRef = doc(db, 'messages', aiMessageId);
         
         const aiMessage: MessageInput = {
@@ -118,11 +103,6 @@ export function useMessageOperations({
           updatedAt: serverTimestamp() as unknown as Timestamp,
           reactions: {},
           isEdited: false,
-          attachments: [{
-            url: storedAudioUrl,
-            type: 'audio/mp3',
-            name: `${character.name}_${aiMessageId}.mp3`
-          }],
           chatId: `ai-chat-${currentUser.uid}-${currentCharacter}`
         };
 
@@ -143,19 +123,7 @@ export function useMessageOperations({
     }
   };
 
-  const uploadFile = async (file: File) => {
-    const storageRef = ref(storage, `uploads/${file.name}-${Date.now()}`);
-    await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
-    return {
-      url,
-      type: file.type,
-      name: file.name
-    };
-  };
-
   return {
-    sendMessage,
-    uploadFile
+    sendMessage
   };
 } 

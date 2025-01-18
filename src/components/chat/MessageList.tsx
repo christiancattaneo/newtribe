@@ -4,8 +4,7 @@ import { useThread } from '../../contexts/channel/hooks/useThread';
 import { useAuth } from '../../contexts/hooks/useAuth';
 import { Message } from '../../types/channel';
 import { CHARACTERS } from '../../types/character';
-import { AudioPlayer } from './AudioPlayer';
-import { audioService } from '../../services/audioService';
+import { CharacterAIService } from '../../services/characterAI';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -19,16 +18,12 @@ interface EmojiPickerResult {
 interface MessageListProps {
   showReactionPicker: string | null;
   setShowReactionPicker: (messageId: string | null) => void;
-  audioPlayingMessageId: string | null;
-  setAudioPlayingMessageId: (messageId: string | null) => void;
   setSelectedThread: (message: Message | null) => void;
 }
 
 export default function MessageList({
   showReactionPicker,
   setShowReactionPicker,
-  audioPlayingMessageId,
-  setAudioPlayingMessageId,
   setSelectedThread
 }: MessageListProps) {
   const { 
@@ -42,12 +37,46 @@ export default function MessageList({
   } = useChannel();
   const { getThreadRepliesCount, getMainMessages } = useThread();
   const { currentUser } = useAuth();
+  const characterService = new CharacterAIService();
+  const [isGeneratingAudio, setIsGeneratingAudio] = React.useState<string | null>(null);
 
   const messages = getMainMessages();
 
   const handleReactionSelect = async (messageId: string, emoji: EmojiPickerResult) => {
     await addReaction(messageId, emoji.native);
     setShowReactionPicker(null);
+  };
+
+  const handleGenerateAudio = async (message: Message) => {
+    if (!currentCharacter || isGeneratingAudio) return;
+    
+    setIsGeneratingAudio(message.id);
+    try {
+      const audioUrl = await characterService.generateSpeech(message.content, currentCharacter);
+      if (!audioUrl) throw new Error('Failed to generate audio');
+      
+      // Extract base64 data from data URL
+      const base64Data = audioUrl.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'audio/mp3' });
+      
+      // Play the audio directly from the blob
+      const objectUrl = URL.createObjectURL(blob);
+      const audio = new Audio(objectUrl);
+      await audio.play();
+      audio.onended = () => URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error('Error generating audio:', error);
+    } finally {
+      setIsGeneratingAudio(null);
+    }
   };
 
   if (!currentChannel && !currentDirectMessage && !currentCharacter) {
@@ -96,28 +125,22 @@ export default function MessageList({
           <div className="chat-bubble">
             {message.content}
           </div>
-          {message.userId.startsWith('ai-') && (
+          {currentCharacter && message.userId.startsWith('ai-') && (
             <div className="chat-footer flex items-center gap-2 mt-2">
-              {audioPlayingMessageId === message.id ? (
-                <AudioPlayer 
-                  audioUrl={message.attachments?.find(a => a.type === 'audio/mp3')?.url || ''}
-                  onClose={() => {
-                    audioService.stopAudio();
-                    setAudioPlayingMessageId(null);
-                  }}
-                />
-              ) : (
+              {isGeneratingAudio === message.id ? (
                 <button 
-                  className="btn btn-sm btn-primary" 
-                  onClick={() => {
-                    const audioUrl = message.attachments?.find(a => a.type === 'audio/mp3')?.url;
-                    if (audioUrl) {
-                      audioService.playAudio(audioUrl);
-                      setAudioPlayingMessageId(message.id);
-                    }
-                  }}
+                  className="btn btn-sm btn-ghost loading"
+                  disabled
                 >
-                  🔊 Play Audio
+                  Generating...
+                </button>
+              ) : (
+                <button
+                  className="btn btn-sm btn-ghost"
+                  onClick={() => handleGenerateAudio(message)}
+                  disabled={isGeneratingAudio !== null}
+                >
+                  🔊 Generate Speech
                 </button>
               )}
             </div>

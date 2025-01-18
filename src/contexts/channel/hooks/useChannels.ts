@@ -1,22 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  doc, 
-  setDoc, 
-  orderBy,
-  serverTimestamp,
-  getDocs,
-  writeBatch
-} from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, serverTimestamp, setDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
-import { Channel, DirectMessage, Message } from '../../../types/channel';
-import { User } from '../../../types';
 import { v4 as uuidv4 } from 'uuid';
+import { Channel, DirectMessage, Message } from '../../../types/channel';
+import { useCallback, useEffect, useState } from 'react';
+import { 
+  where, 
+  orderBy, 
+  deleteDoc
+} from 'firebase/firestore';
+import { User } from '../../../types';
 
-interface UseChannelsProps {
+export interface UseChannelsProps {
   currentUser: User | null;
   currentDirectMessage: DirectMessage | null;
   currentCharacter: string | null;
@@ -27,7 +21,15 @@ interface UseChannelsProps {
   setMessages: (messages: Message[]) => void;
 }
 
-export function useChannels({ 
+export interface UseChannelsReturn {
+  channels: Channel[];
+  isLoading: boolean;
+  createChannel: (name: string, description?: string) => Promise<Channel>;
+  selectChannel: (channelId: string) => Promise<void>;
+  deleteChannel: (channelId: string) => Promise<void>;
+}
+
+export function useChannels({
   currentUser,
   currentDirectMessage,
   currentCharacter,
@@ -36,7 +38,7 @@ export function useChannels({
   setCurrentDirectMessage,
   setCurrentCharacter,
   setMessages
-}: UseChannelsProps) {
+}: UseChannelsProps): UseChannelsReturn {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -116,6 +118,14 @@ export function useChannels({
       throw new Error('Must be signed in to create a channel');
     }
 
+    // Check for existing channel with same name
+    const existingChannel = channels.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (existingChannel) {
+      console.log('[useChannels] Channel with name already exists:', name);
+      setCurrentChannel(existingChannel);
+      return existingChannel;
+    }
+
     const newChannel: Channel = {
       id: uuidv4(),
       name,
@@ -127,7 +137,56 @@ export function useChannels({
     await setDoc(doc(db, 'channels', newChannel.id), newChannel);
     setCurrentChannel(newChannel);
     return newChannel;
-  }, [currentUser, setCurrentChannel]);
+  }, [currentUser, channels, setCurrentChannel]);
+
+  // Effect to clean up duplicate channels
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const cleanupDuplicateChannels = async () => {
+      const channelNames = new Map<string, Channel>();
+      const duplicates: Channel[] = [];
+
+      channels.forEach(channel => {
+        const name = channel.name.toLowerCase();
+        if (channelNames.has(name)) {
+          // Keep the older channel, mark newer one as duplicate
+          const existing = channelNames.get(name)!;
+          if (channel.createdAt < existing.createdAt) {
+            duplicates.push(existing);
+            channelNames.set(name, channel);
+          } else {
+            duplicates.push(channel);
+          }
+        } else {
+          channelNames.set(name, channel);
+        }
+      });
+
+      if (duplicates.length > 0) {
+        console.log('[useChannels] Found duplicate channels to clean up:', duplicates.length);
+        const batch = writeBatch(db);
+        
+        for (const channel of duplicates) {
+          // Delete the channel document
+          batch.delete(doc(db, 'channels', channel.id));
+          
+          // Delete all messages in the channel
+          const messagesSnapshot = await getDocs(collection(db, 'channels', channel.id, 'messages'));
+          messagesSnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+        }
+
+        await batch.commit();
+        console.log('[useChannels] Cleaned up duplicate channels');
+      }
+    };
+
+    cleanupDuplicateChannels().catch(error => {
+      console.error('[useChannels] Error cleaning up duplicate channels:', error);
+    });
+  }, [currentUser, channels]);
 
   const selectChannel = useCallback(async (channelId: string) => {
     console.log('[useChannels] Selecting channel:', channelId);
@@ -144,10 +203,20 @@ export function useChannels({
     }
   }, [channels, setCurrentChannel, setCurrentDirectMessage, setCurrentCharacter, setMessages]);
 
+  const deleteChannel = useCallback(async (channelId: string) => {
+    if (!currentUser) {
+      throw new Error('Must be signed in to delete a channel');
+    }
+
+    await deleteDoc(doc(db, 'channels', channelId));
+    setChannels(channels.filter(c => c.id !== channelId));
+  }, [currentUser, channels]);
+
   return {
     channels,
     isLoading,
     createChannel,
-    selectChannel
+    selectChannel,
+    deleteChannel
   };
 } 

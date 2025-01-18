@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { collection, query as firestoreQuery, doc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { collection, query as firestoreQuery, doc, setDoc, serverTimestamp, onSnapshot, writeBatch, getDocs } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 import { Channel, DirectMessage, Message } from '../../../types/channel';
 import { User } from '../../../types';
@@ -11,6 +11,7 @@ interface UseChannelOperationsProps {
   setCurrentDirectMessage: (dm: DirectMessage | null) => void;
   setCurrentCharacter: (character: string | null) => void;
   setMessages: (messages: Message[]) => void;
+  currentChannel?: Channel | null;
 }
 
 export function useChannelOperations({
@@ -18,7 +19,8 @@ export function useChannelOperations({
   setCurrentChannel,
   setCurrentDirectMessage,
   setCurrentCharacter,
-  setMessages
+  setMessages,
+  currentChannel
 }: UseChannelOperationsProps) {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,11 +87,44 @@ export function useChannelOperations({
     }
   }, [channels, setCurrentChannel, clearCurrentChat]);
 
+  const deleteChannel = useCallback(async (channelId: string) => {
+    if (!currentUser) {
+      throw new Error('Must be signed in to delete a channel');
+    }
+
+    const channel = channels.find(c => c.id === channelId);
+    if (!channel) return;
+
+    // Only allow deletion if user created the channel
+    if (channel.createdBy !== currentUser.uid) {
+      throw new Error('Only the channel creator can delete the channel');
+    }
+
+    // Delete all messages in the channel first
+    const batch = writeBatch(db);
+    const messagesRef = collection(db, 'channels', channelId, 'messages');
+    const messagesSnapshot = await getDocs(messagesRef);
+    messagesSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete the channel document
+    batch.delete(doc(db, 'channels', channelId));
+
+    // If this was the current channel, clear it
+    if (currentChannel?.id === channelId) {
+      clearCurrentChat();
+    }
+
+    await batch.commit();
+  }, [currentUser, channels, currentChannel, clearCurrentChat]);
+
   return {
     channels,
     isLoading,
     createChannel,
     selectChannel,
-    clearCurrentChat
-  };
+    clearCurrentChat,
+    deleteChannel
+  } as const;
 } 

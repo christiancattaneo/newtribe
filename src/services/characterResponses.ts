@@ -6,6 +6,10 @@ interface ResponseData {
   response: string;
 }
 
+interface SpeechData {
+  audioUrl: string;
+}
+
 export class CharacterResponseService {
   async generateResponse(character: Character, query: string): Promise<string> {
     console.log('[CharacterResponseService] Generating response:', { character: character.name, query });
@@ -39,7 +43,7 @@ export class CharacterResponseService {
       const generateSpeech = httpsCallable<{
         text: string;
         characterId: string;
-      }, { audioUrl: string }>(
+      }, SpeechData>(
         functions,
         'generateSpeech'
       );
@@ -49,6 +53,7 @@ export class CharacterResponseService {
         characterId
       });
 
+      console.log('[CharacterResponseService] Speech generated:', result.data.audioUrl);
       return result.data.audioUrl;
     } catch (error) {
       console.error('[CharacterResponseService] Error generating speech:', error);

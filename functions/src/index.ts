@@ -105,7 +105,7 @@ export const generateChatResponse = onCall<{ message?: string; query?: string; c
 
 export const generateSpeech = onCall<{ text: string; characterId: string }>(
   { 
-    cors: ["http://localhost:5173", "https://tribed.web.app"],
+    cors: true,  // Allow CORS from any origin
     maxInstances: 10 
   },
   async (request) => {

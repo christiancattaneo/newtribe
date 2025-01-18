@@ -13,7 +13,15 @@ interface UseUsersProps {
   currentUser: User | null;
 }
 
-export function useUsers({ currentUser }: UseUsersProps) {
+interface UseUsersReturn {
+  users: Record<string, User>;
+  setUsers: (users: Record<string, User> | ((prev: Record<string, User>) => Record<string, User>)) => void;
+  fetchUserData: (userId: string) => Promise<void>;
+  fetchMessageUsers: (userIds: Set<string>) => Promise<void[]>;
+  getAvailableUsers: () => Promise<User[]>;
+}
+
+export function useUsers({ currentUser }: UseUsersProps): UseUsersReturn {
   const [users, setUsers] = useState<Record<string, User>>({});
 
   const fetchUserData = useCallback(async (userId: string) => {

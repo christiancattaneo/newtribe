@@ -63,7 +63,8 @@ export function ChannelProvider({ children }: { children: ReactNode }) {
     channels,
     createChannel,
     selectChannel,
-    isLoading
+    isLoading,
+    deleteChannel
   } = useChannels({
     currentUser: userObject,
     currentDirectMessage,
@@ -82,7 +83,8 @@ export function ChannelProvider({ children }: { children: ReactNode }) {
 
   const {
     directMessages,
-    selectDirectMessage
+    selectDirectMessage,
+    deleteDirectMessage
   } = useDirectMessages({
     currentUser: userObject,
     users,
@@ -96,8 +98,7 @@ export function ChannelProvider({ children }: { children: ReactNode }) {
   });
 
   const {
-    sendMessage,
-    uploadFile
+    sendMessage
   } = useMessageOperations({
     currentUser: userObject,
     currentChannel,
@@ -134,13 +135,14 @@ export function ChannelProvider({ children }: { children: ReactNode }) {
     selectDirectMessage,
     setCurrentCharacter,
     sendMessage,
-    uploadFile,
     searchMessages,
     addReaction,
     removeReaction,
     getAvailableUsers,
     getThreadMessages,
-    getThreadRepliesCount
+    getThreadRepliesCount,
+    deleteChannel,
+    deleteDirectMessage
   }), [
     channels,
     messages,
@@ -155,13 +157,14 @@ export function ChannelProvider({ children }: { children: ReactNode }) {
     selectDirectMessage,
     setCurrentCharacter,
     sendMessage,
-    uploadFile,
     searchMessages,
     addReaction,
     removeReaction,
     getAvailableUsers,
     getThreadMessages,
-    getThreadRepliesCount
+    getThreadRepliesCount,
+    deleteChannel,
+    deleteDirectMessage
   ]);
 
   return (

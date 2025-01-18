@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { 
   collection,
   query as firestoreQuery,
-  where,
   getDocs,
   QueryDocumentSnapshot,
   DocumentData
@@ -19,12 +18,6 @@ interface UseMessageSearchProps {
   fetchUserData: (userId: string) => Promise<void>;
 }
 
-interface MessageAttachment {
-  name: string;
-  url: string;
-  type: string;
-}
-
 export function useMessageSearch({ 
   channels, 
   directMessages, 
@@ -33,26 +26,6 @@ export function useMessageSearch({
 }: UseMessageSearchProps) {
   const searchMessages = useCallback(async (searchQuery: string): Promise<SearchResult[]> => {
     if (!searchQuery.trim()) return [];
-
-    // Search in messages collection for content or attachment names
-    const messagesRef = collection(db, 'messages');
-    const contentQuery = firestoreQuery(
-      messagesRef,
-      where('content', '>=', searchQuery),
-      where('content', '<=', searchQuery + '\uf8ff')
-    );
-
-    const attachmentQuery = firestoreQuery(
-      messagesRef,
-      where('attachments', 'array-contains', {
-        name: searchQuery
-      })
-    );
-
-    const [contentSnapshot, attachmentSnapshot] = await Promise.all([
-      getDocs(contentQuery),
-      getDocs(attachmentQuery)
-    ]);
 
     const results: SearchResult[] = [];
     const processedMessageIds = new Set<string>();
@@ -69,6 +42,7 @@ export function useMessageSearch({
         userId: data.userId,
         channelId: data.channelId,
         directMessageId: data.directMessageId,
+        chatId: data.chatId,
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
         reactions: data.reactions || {},
@@ -79,47 +53,61 @@ export function useMessageSearch({
       } as Message;
 
       // Fetch user data if needed
-      if (!users[message.userId]) {
+      if (!users[message.userId] && !message.userId.startsWith('ai-')) {
         await fetchUserData(message.userId);
       }
 
-      // Add channel or DM context
-      if ('channelId' in data) {
-        const channel = channels.find(c => c.id === data.channelId);
+      // Add context based on message type
+      if (message.channelId) {
+        const channel = channels.find(c => c.id === message.channelId);
         if (channel) {
           results.push({ message, channel });
         }
-      } else if ('directMessageId' in data) {
-        const dm = directMessages.find(d => d.id === data.directMessageId);
+      } else if (message.directMessageId) {
+        const dm = directMessages.find(d => d.id === message.directMessageId);
         if (dm) {
           results.push({ message, directMessage: dm });
         }
+      } else if (message.chatId?.startsWith('ai-chat-')) {
+        // Handle AI chat messages
+        results.push({ message });
       }
     };
 
-    // Process both content and attachment matches
-    for (const doc of contentSnapshot.docs) {
-      await processDoc(doc);
-    }
+    // Search in regular messages collection
+    const messagesRef = collection(db, 'messages');
+    const messagesQuery = firestoreQuery(messagesRef);
+    const messagesSnapshot = await getDocs(messagesQuery);
 
-    for (const doc of attachmentSnapshot.docs) {
-      await processDoc(doc);
-    }
+    // Search in channel messages subcollections
+    const channelSearchPromises = channels.map(async channel => {
+      const channelMessagesRef = collection(db, 'channels', channel.id, 'messages');
+      const channelMessagesQuery = firestoreQuery(channelMessagesRef);
+      return getDocs(channelMessagesQuery);
+    });
 
-    // Also search for partial filename matches
-    const allMessagesQuery = firestoreQuery(messagesRef);
-    const allMessages = await getDocs(allMessagesQuery);
-    
-    for (const doc of allMessages.docs) {
+    const channelSnapshots = await Promise.all(channelSearchPromises);
+
+    // Process all messages and filter by search query
+    for (const doc of messagesSnapshot.docs) {
       const data = doc.data();
-      if (data.attachments?.some((att: MessageAttachment) => 
-        att.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )) {
+      if (data.content?.toLowerCase().includes(searchQuery.toLowerCase())) {
         await processDoc(doc);
       }
     }
 
-    return results;
+    // Process channel messages
+    for (const snapshot of channelSnapshots) {
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        if (data.content?.toLowerCase().includes(searchQuery.toLowerCase())) {
+          await processDoc(doc);
+        }
+      }
+    }
+
+    // Sort results by date
+    return results.sort((a, b) => b.message.createdAt.getTime() - a.message.createdAt.getTime());
   }, [channels, directMessages, users, fetchUserData]);
 
   return {

@@ -14,7 +14,6 @@ export default function ChatView() {
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showUserProfile] = useState(false);
   const [selectedThread, setSelectedThread] = useState<Message | null>(null);
-  const [audioPlayingMessageId, setAudioPlayingMessageId] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
 
@@ -51,8 +50,6 @@ export default function ChatView() {
           <MessageList 
             showReactionPicker={showReactionPicker}
             setShowReactionPicker={setShowReactionPicker}
-            audioPlayingMessageId={audioPlayingMessageId}
-            setAudioPlayingMessageId={setAudioPlayingMessageId}
             setSelectedThread={setSelectedThread}
           />
 
