@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   collection, 
   query as firestoreQuery, 
@@ -15,7 +15,9 @@ import {
   arrayUnion,
   arrayRemove,
   QueryDocumentSnapshot,
-  DocumentData
+  DocumentData,
+  writeBatch,
+  FieldValue
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../config/firebase';
@@ -42,6 +44,7 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<Record<string, User>>({});
   const [isLoading, setIsLoading] = useState(true);
   const { currentUser } = useAuth();
+  const [currentCharacter, setCurrentCharacter] = useState<string | null>(null);
 
   // Initialize channels including AI chat
   useEffect(() => {
@@ -57,25 +60,28 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
     console.log('[ChannelProvider] Loading channels');
     setIsLoading(true);
 
-    const initializeAIChat = async () => {
-      const aiChatRef = doc(db, 'channels', 'ai-chat');
-      const aiChatDoc = await getDoc(aiChatRef);
-
-      if (!aiChatDoc.exists()) {
-        console.log('[ChannelProvider] Creating AI chat channel');
-        await setDoc(aiChatRef, {
-          id: 'ai-chat',
-          name: 'AI Assistant',
-          description: 'Your personal AI assistant',
-          createdAt: serverTimestamp(),
-          createdBy: currentUser.uid,
-          isAIChannel: true
+    // Clean up any incorrectly generated AI chat channels
+    const cleanupAIChannels = async () => {
+      const q = firestoreQuery(
+        collection(db, 'channels'),
+        where('id', '>=', 'ai-chat-'),
+        where('id', '<', 'ai-chat-\uf8ff')
+      );
+      
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        console.log('[ChannelProvider] Found incorrect AI channels to clean up:', snapshot.size);
+        const batch = writeBatch(db);
+        snapshot.forEach((doc) => {
+          batch.delete(doc.ref);
         });
+        await batch.commit();
+        console.log('[ChannelProvider] Cleaned up incorrect AI channels');
       }
     };
 
-    // Initialize AI chat and set up channel listener
-    initializeAIChat().then(() => {
+    // Initialize channels
+    cleanupAIChannels().then(() => {
       const q = firestoreQuery(
         collection(db, 'channels'),
         orderBy('createdAt', 'asc')
@@ -84,7 +90,10 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const channelData: Channel[] = [];
         snapshot.forEach((doc) => {
-          channelData.push({ id: doc.id, ...doc.data() } as Channel);
+          // Only include non-AI chat channels
+          if (!doc.id.startsWith('ai-chat-')) {
+            channelData.push({ id: doc.id, ...doc.data() } as Channel);
+          }
         });
         console.log('[ChannelProvider] Channels updated:', channelData);
         setChannels(channelData);
@@ -150,8 +159,7 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
     if (currentChannel) {
       console.log('[ChannelProvider] Setting up channel messages listener for channel:', currentChannel.id);
       messagesQuery = firestoreQuery(
-        collection(db, 'messages'),
-        where('channelId', '==', currentChannel.id),
+        collection(db, 'channels', currentChannel.id, 'messages'),
         orderBy('createdAt', 'asc')
       );
     } else if (currentDirectMessage) {
@@ -164,8 +172,17 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
         where('directMessageId', '==', currentDirectMessage.id),
         orderBy('createdAt', 'asc')
       );
+    } else if (currentCharacter) {
+      // For AI chats, get messages where chatId matches the AI chat ID
+      const aiChatId = `ai-chat-${currentUser.uid}-${currentCharacter}`;
+      console.log('[ChannelProvider] Setting up AI chat messages listener:', aiChatId);
+      messagesQuery = firestoreQuery(
+        collection(db, 'messages'),
+        where('chatId', '==', aiChatId),
+        orderBy('createdAt', 'asc')
+      );
     } else {
-      console.log('[ChannelProvider] No active channel or DM, clearing messages');
+      console.log('[ChannelProvider] No active chat, clearing messages');
       setMessages([]);
       return;
     }
@@ -189,7 +206,7 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
         } as Message;
       });
       
-      const userIdsToFetch = new Set(newMessages.map(msg => msg.userId));
+      const userIdsToFetch = new Set<string>(newMessages.map(msg => msg.userId));
       await fetchMessageUsers(userIdsToFetch);
       setMessages(newMessages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()));
     }, (error) => {
@@ -200,7 +217,7 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
       console.log('[ChannelProvider] Cleaning up messages listener');
       unsubscribe();
     };
-  }, [currentUser, currentChannel, currentDirectMessage, fetchMessageUsers]);
+  }, [currentUser, currentChannel, currentDirectMessage, fetchMessageUsers, currentCharacter]);
 
   // Effect to load direct messages
   useEffect(() => {
@@ -284,19 +301,41 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
     setCurrentDirectMessage(null); // Clear DM when selecting channel
   };
 
-  const sendMessage = async (content: string, attachments?: { url: string; type: string; name: string }[], parentMessageId?: string): Promise<void> => {
-    if ((!currentChannel?.id && !currentDirectMessage?.id) || !currentUser) return;
+  const sendMessage = async (content: string, attachments?: { url: string; type: string; name: string }[], parentMessageId?: string, overrideUser?: { displayName: string; photoURL: string; uid: string }): Promise<void> => {
+    if (!currentUser && !overrideUser) return;
 
-    const messageData = {
+    const messageData: {
+      content: string;
+      userId: string;
+      createdAt: FieldValue;
+      updatedAt: FieldValue;
+      reactions: Record<string, string[]>;
+      isEdited: boolean;
+      attachments?: { url: string; type: string; name: string }[];
+      channelId?: string;
+      directMessageId?: string;
+      chatId?: string;
+    } = {
       content,
-      userId: currentUser.uid,
+      userId: overrideUser?.uid || currentUser!.uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       ...(attachments ? { attachments } : {}),
       reactions: {},
       isEdited: false,
-      ...(currentChannel ? { channelId: currentChannel.id } : { directMessageId: currentDirectMessage!.id })
     };
+
+    // Add the appropriate chat identifier
+    if (currentChannel) {
+      messageData.channelId = currentChannel.id;
+    } else if (currentDirectMessage) {
+      messageData.directMessageId = currentDirectMessage.id;
+    } else if (currentCharacter) {
+      messageData.chatId = `ai-chat-${currentUser!.uid}-${currentCharacter}`;
+    } else {
+      console.error('[ChannelProvider] No active chat context');
+      return;
+    }
 
     if (parentMessageId) {
       const parentMessage = await getDoc(doc(db, 'messages', parentMessageId));
@@ -309,6 +348,18 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    // Add override user to users record if provided
+    if (overrideUser) {
+      setUsers(prev => ({
+        ...prev,
+        [overrideUser.uid]: {
+          uid: overrideUser.uid,
+          displayName: overrideUser.displayName,
+          photoURL: overrideUser.photoURL
+        } as User
+      }));
+    }
+
     await addDoc(collection(db, 'messages'), messageData);
 
     // Update DM with last message if this is a DM
@@ -317,7 +368,7 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
         lastMessage: {
           content,
           timestamp: serverTimestamp(),
-          senderId: currentUser.uid
+          senderId: overrideUser?.uid || currentUser!.uid
         },
         updatedAt: serverTimestamp()
       });
@@ -630,11 +681,13 @@ export function ChannelProvider({ children }: { children: React.ReactNode }) {
     directMessages,
     currentChannel,
     currentDirectMessage,
+    currentCharacter,
     users,
     isLoading,
     createChannel,
     selectChannel,
     selectDirectMessage,
+    setCurrentCharacter,
     sendMessage,
     sendDirectMessage,
     addReaction,

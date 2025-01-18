@@ -29,3 +29,8 @@ firebase-admin.json
 .env
 .env.*
 !.env.example
+
+# Firebase config files
+.runtimeconfig.json
+**/service-account-*.json
+**/firebase-adminsdk-*.json

@@ -1,0 +1,928 @@
+{
+  "dialogues": [
+    {
+      "text": "Who we are does not matter. What matters is our plan",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "It would be extremely painful",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "For you",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Of course. Dr. Pavel refused our offer in favor of yours. We had to know what he told you about us",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "He would not have told us",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Him, I need healthy. You present no such problem",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "The ramp of the transport opens... Four men leap out on tethers - dropping ",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Friend. They expect one of us in the wreckage",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "The fire rises",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Calm, Doctor. Now is not time for Bane slides Dr. Pavel out of his seat. They hang in the",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS",
+        "emotion": "calm",
+        "speaking_to": null,
+        "scene_location": "INT. MAIN CABIN, COMMUTER PLANE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "That comes later. Bane presses the detonator - the cabin drops from ",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM - EVENING",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM - EVENING"
+      }
+    },
+    {
+      "text": "Why are you here? The Thugs drop Gordon at Bane\u2019s feet",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "I\u2019m asking you",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "And you brought him down here",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "You panicked. And your weakness costs three lives",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "Search him. Then I will kill you. gun...and the folded papers of the speech he did not read",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "Then show me his body",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "Give me your . jacket, zips it up like a mother sending her kid to school. 30",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "Follow him",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS (NIGHT)"
+      }
+    },
+    {
+      "text": "Track him. Make sure both bodies will not be found. Then brick up the south tunnel. Blake comes out to the catchment basin. He spots something Alfred opens the door to reveal Blake in his dirty uniform",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. FRONT HALL, WAYNE MANOR - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. FRONT HALL, WAYNE MANOR - DAY"
+      }
+    },
+    {
+      "text": "Why else would you people be here? man\u2019s thumb onto the print reader - the screen lights up",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. STOCK EXCHANGE - EVENING",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. STOCK EXCHANGE - EVENING"
+      }
+    },
+    {
+      "text": "Enter your password. Or I send these men to your home. Trader 1, terrified, types in his password. Outside, sirens. construction vehicles are blocking. Blake argues with a burly Construction Worker",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. STOCK EXCHANGE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. STOCK EXCHANGE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "For now. How much longer does the program need",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. STOCK EXCHANGE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. STOCK EXCHANGE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Time to go mobile. Allen shouts at his men",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. STOCK EXCHANGE - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. STOCK EXCHANGE - CONTINUOUS"
+      }
+    },
+    {
+      "text": "...and he shall appear",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "The plan is proceeding as expected",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "Leave us. 75",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "Do you feel in charge? Daggett is taken aback. Stryver leaves",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "Daggett considers the heavy hand on his shoulder. Nervous",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "Your money and infrastructure have been important. Till now",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "Gotham\u2019s reckoning. Come to end the borrowed time you\u2019ve all been",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. DAGGETT\u2019S PENTHOUSE - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. DAGGETT\u2019S PENTHOUSE - DAY"
+      }
+    },
+    {
+      "text": "I am necessary evil. Stryver, on the steps outside the living room, flinches",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT./EXT. CRUISER ON GOTHAM STREETS - MOMENTS LATER",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT./EXT. CRUISER ON GOTHAM STREETS - MOMENTS LATER"
+      }
+    },
+    {
+      "text": "Let\u2019s not stand on ceremony here, Mr. Wayne. Catwoman hears the name. Less sure of what she\u2019s done. his fist",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": "intense",
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Peace has cost you strength. Victory has defeated you. 85. Bane Batman back - kicks him ",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Theatricality and deception are powerful agents...to the uninitiated. Batman lashes out at Bane - Bane counters - they separate",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": "intense",
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "But we are initiated, aren\u2019t we, Bruce? The League of Shadows. And",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Now I am the Legue of Shadows, here to fulfill R\u00afa\u2019s al Gh\u00aful\u2019s waterfall, where he smashes his fists and gauntlets into Bane\u2019s mask again and again, water cascading over them. Bane is not moving. Just taking the blows. Batman pauses",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "You fight like a younger man. Nothing held back. No reserves. Admirable. But mistaken. Batman hits a switch on his belt - the lights go out - Bane turns slowly addressing all the shadows at once",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "You think darkness is your ally. But you merely adopted the dark. I",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "I didn\u2019t see the light until I was already a man. And by then it was 86. his grasp",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "The shadows betray you, because pounding the hard cowl with his bare fists until it . Bane from Batman, gestures to the ceiling of the",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Your precious armory. Gratefully accepted. We will need it. Batman climbs to his feet, swaying. Bane approaches",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "I wondered which would break first Batman at him - misses - Bane him, lifts him",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BANE\u2019S LAIR, SEWERS - CONTINUOUS"
+      }
+    },
+    {
+      "text": "You don\u2019t fear death. You welcome it. Your punishment is to be more severe",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. STONE CELL - DAWN",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. STONE CELL - DAWN"
+      }
+    },
+    {
+      "text": "Yes. But not of your body. Of your soul. Wayne exhales. Eyes losing focus from sheer pain. 90",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. STONE CELL - DAWN",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. STONE CELL - DAWN"
+      }
+    },
+    {
+      "text": "This meeting is called to order. Fox and Miranda freeze. Staring at the mask. 92",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BOARDROOM, WAYNE ENTERPRISES - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BOARDROOM, WAYNE ENTERPRISES - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Chair and President. I also need one ordinary member - Mr. Fox, would you care to nominate",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BOARDROOM, WAYNE ENTERPRISES - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BOARDROOM, WAYNE ENTERPRISES - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Where you buried your resources. The bowels of Gotham. position as Blake watches",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. HOSPITAL ROOM - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. HOSPITAL ROOM - DAY"
+      }
+    },
+    {
+      "text": "Turn it on",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MASSIVE TUNNEL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MASSIVE TUNNEL - CONTINUOUS"
+      }
+    },
+    {
+      "text": "I only need one other board member. There are eight more waiting upstairs",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. MASSIVE TUNNEL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. MASSIVE TUNNEL - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Do your work. Take them to the surface. People of their status deserve to see the next era of western civilization. The Mayor, flanked by Security, talks to a crowd of Reporters",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM STADIUM - DAY",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM STADIUM - DAY"
+      }
+    },
+    {
+      "text": "Pull the core out of the reactor",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. REACTOR PLANT - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. REACTOR PLANT - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Five, by my calculations",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. REACTOR PLANT - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. REACTOR PLANT - CONTINUOUS"
+      }
+    },
+    {
+      "text": "For the sake of your family, Dr. Pavel, I hope so. 98. Blake is led through a fence by a Worker",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. CEMENT PLANT - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. CEMENT PLANT - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Gotham, take control of your Blake squeezes out of his cruiser, reaches in for the radio",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT./EXT. OVERTURNED CRUISER ON GOTHAM STREET - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT./EXT. OVERTURNED CRUISER ON GOTHAM STREET - CONTINUOUS"
+      }
+    },
+    {
+      "text": "This is the instrument of your Analysts and military personnel assess the situation",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. PENTAGON WAR ROOM - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. PENTAGON WAR ROOM - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Identify yourself to the world",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM STADIUM - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM STADIUM - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Tell the world what this is",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM STADIUM - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM STADIUM - CONTINUOUS"
+      }
+    },
+    {
+      "text": "And who can disarm this device",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM STADIUM - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM STADIUM - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Thank you, Doctor. Bane snaps Dr. Pavel\u2019s neck in front of the world",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM STADIUM - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM STADIUM - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Behind you stands a symbol of Prisoners strain to hear Bane\u2019s words. Selina is there",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. CELLBLOCK, BLACKGATE PRISON - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. CELLBLOCK, BLACKGATE PRISON - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Harvey Dent. Held up to you, and over you, as a shining example of Gordon sits watching Bane\u2019s speech. Blake gathers supplies",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BLAKE\u2019S APARTMENT - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BLAKE\u2019S APARTMENT - CONTINUOUS"
+      }
+    },
+    {
+      "text": "But they supplied you a false idol. A straw man. To placate. To stop you tearing down this corrupt The Prisoners start cheering, shouting",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. CELLBLOCK, BLACKGATE PRISON - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. CELLBLOCK, BLACKGATE PRISON - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Let me tell you the truth about Harvey Dent. In the words of Gotham\u2019s Police Commissioner, James",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. BLACKGATE PRISON - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. BLACKGATE PRISON - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Do you accept the resignation of all the liars?! All the corrupt?! More and more of the crowd is chanting \u2019Yes!\u2019 110",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. BLAKE\u2019S APARTMENT - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. BLAKE\u2019S APARTMENT - CONTINUOUS"
+      }
+    },
+    {
+      "text": "We take Gotham from the corrupt. generations who\u2019ve kept you down with the myth of opportunity. And we give it to you, the people. Gotham is yours - none shall The Tumbler fires, blowing the doors to hell. 111",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. BLACKGATE PRISON - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. BLACKGATE PRISON - CONTINUOUS"
+      }
+    },
+    {
+      "text": "I\u2019m on your schedule, Captain. Bane places his hand over Jones\u2019s nose and mouth",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. TELLSONS BANK - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. TELLSONS BANK - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Give them over for judgement. the world will see. 125. screen. Prisoner listens. He speaks in an ancient tongue",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. SAME - LATER",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. SAME - LATER"
+      }
+    },
+    {
+      "text": "Bring her to me. Wayne bounds up the stairs. Fox follows, out of breath",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. STAIRWELL, SKYSCRAPER - SUNSET",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. STAIRWELL, SKYSCRAPER - SUNSET"
+      }
+    },
+    {
+      "text": "Foley yanks up the floorboards. Pull his dress blues from their hiding place. Mercenaries guarding the entrance see the sign. One of them moves out to get a better look. ! He is taken out by a 140",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM RIVER - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM RIVER - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Open fire",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. GOTHAM STREET - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. GOTHAM STREET - CONTINUOUS"
+      }
+    },
+    {
+      "text": "You came back. To die with your city",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "EXT. DOWNTOWN STREET - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "EXT. DOWNTOWN STREET - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Stay back. He is mine - Bane Batman\u2019s head - moves in for the kill, but tubes of Bane\u2019s mask with the blades of his forearm. Bane hand on his throat - searches him with his free hand",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. LOBBY, CITY HALL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. LOBBY, CITY HALL - CONTINUOUS"
+      }
+    },
+    {
+      "text": "I broke you. How have you come back",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. LOBBY, CITY HALL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. LOBBY, CITY HALL - CONTINUOUS"
+      }
+    },
+    {
+      "text": "I never escaped - R\u00afa\u2019s al Gh\u00aful rescued me. That is why I mist fulfill his plan. That is why I must avenge his murder",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. LOBBY, CITY HALL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. LOBBY, CITY HALL - CONTINUOUS"
+      }
+    },
+    {
+      "text": "Goodbye. Then is overrun",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. LOBBY, CITY HALL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. LOBBY, CITY HALL - CONTINUOUS"
+      }
+    },
+    {
+      "text": "You\u2019ll have to imagine the fire - He shuts the gun - jams it into Batman\u2019s face. We both know I need to kill you now. lobby by cannon fire. Catwoman is there, on the Bat-Pod",
+      "metadata": {
+        "character": "BANE",
+        "movie": "The Dark Knight Rises",
+        "year": "2012",
+        "scene_context": "INT. LOBBY, CITY HALL - CONTINUOUS",
+        "emotion": null,
+        "speaking_to": null,
+        "scene_location": "INT. LOBBY, CITY HALL - CONTINUOUS"
+      }
+    }
+  ]
+}
