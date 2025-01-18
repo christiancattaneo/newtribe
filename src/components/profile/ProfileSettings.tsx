@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/hooks/useAuth';
 import { useToast } from '../../contexts/useToast';

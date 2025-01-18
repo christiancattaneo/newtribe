@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useChannel } from '../../contexts/channel/useChannel';
 import { useAuth } from '../../contexts/hooks/useAuth';
 import { useToast } from '../../contexts/useToast';
-import { usePresence, UserStatusType } from '../../hooks/usePresence';
+import { usePresence } from '../../hooks/usePresence';
+import { CharacterAIService } from '../../services/characterAI';
+import { CHARACTERS } from '../../types/character';
 import CreateChannelModal from './CreateChannelModal';
 import UserProfile from '../profile/UserProfile';
 import { Message } from '../../types/channel';
@@ -10,6 +12,8 @@ import { SearchResult } from '../../contexts/channel/types';
 import { User } from '../../types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import { audioService } from '../../services/audioService';
+import { AudioPlayer } from './AudioPlayer';
 
 interface EmojiPickerResult {
   native: string;
@@ -34,8 +38,11 @@ export default function ChatView() {
     selectDirectMessage,
     sendDirectMessage,
     getAvailableUsers,
-    searchMessages
+    searchMessages,
+    currentCharacter,
+    setCurrentCharacter
   } = useChannel();
+  const { isUserOnline } = usePresence();
   const [newMessage, setNewMessage] = useState('');
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false);
   const [isCreateDMModalOpen, setIsCreateDMModalOpen] = useState(false);
@@ -51,10 +58,12 @@ export default function ChatView() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const { isUserOnline, getLastSeen, getUserStatus } = usePresence();
   const [selectedThread, setSelectedThread] = useState<Message | null>(null);
   const [threadReply, setThreadReply] = useState('');
   const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
+  const [aiService] = useState(() => new CharacterAIService());
+  const [audioPlayingMessageId, setAudioPlayingMessageId] = useState<string | null>(null);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState<string | null>(null);
 
   useEffect(() => {
     if (isCreateDMModalOpen) {
@@ -76,7 +85,7 @@ export default function ChatView() {
     setSelectedFiles(prev => [...prev, ...files]);
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() && selectedFiles.length === 0) return;
 
@@ -88,20 +97,70 @@ export default function ChatView() {
         })
       );
 
-      if (currentDirectMessage && !currentChannel) {
+      if (currentCharacter) {
+        console.log('[ChatView] Sending message to AI character:', {
+          character: CHARACTERS[currentCharacter],
+          message: newMessage.trim()
+        });
+        
+        if (!currentUser) {
+          showToast('You must be logged in to send messages', 'error');
+          return;
+        }
+        
+        // Send user message
+        await sendMessage(newMessage.trim(), attachments, undefined, {
+          displayName: currentUser.displayName || 'User',
+          photoURL: currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName || 'User'}`,
+          uid: currentUser.uid
+        });
+        
+        // Get character and generate AI response
+        const character = CHARACTERS[currentCharacter];
+        try {
+          // Show typing indicator
+          showToast(`${character.name} is typing...`, 'info');
+          
+          console.log('[ChatView] Generating AI response');
+          const response = await aiService.generateResponse(character, newMessage.trim());
+          console.log('[ChatView] AI response generated:', response);
+          
+          if (response) {
+            console.log('[ChatView] Sending AI response as message');
+            // Send AI response
+            await sendMessage(response, [], undefined, {
+              displayName: character.name,
+              photoURL: character.avatarUrl,
+              uid: `ai-${character.id}`
+            });
+          }
+        } catch (error) {
+          console.error('[ChatView] Error generating AI response:', error);
+          showToast('Failed to generate AI response', 'error');
+        }
+      } else if (currentDirectMessage && !currentChannel) {
         await sendDirectMessage(newMessage.trim(), attachments);
       } else if (currentChannel) {
         await sendMessage(newMessage.trim(), attachments);
       } else {
-        showToast('No active channel or DM selected', 'error');
+        showToast('No active channel or chat selected', 'error');
         return;
       }
+      
       setNewMessage('');
       setSelectedFiles([]);
-    } catch {
+    } catch (err) {
+      console.error('[ChatView] Error in handleSubmit:', err);
       showToast('Failed to send message', 'error');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as unknown as React.FormEvent);
     }
   };
 
@@ -152,6 +211,66 @@ export default function ChatView() {
     }
   };
 
+  const handleCharacterSelect = async (characterId: string) => {
+    try {
+      console.log('[ChatView] Character selected:', {
+        characterId,
+        character: CHARACTERS[characterId]
+      });
+      
+      setCurrentCharacter(characterId);
+      console.log('[ChatView] Current character set:', characterId);
+      
+      await aiService.loadCharacterDialogues(characterId);
+      console.log('[ChatView] Character dialogues loaded');
+      
+      // Reset any channel selection
+      if (currentChannel) {
+        console.log('[ChatView] Resetting channel selection');
+        await selectChannel('');
+      }
+      
+      // Reset any direct message selection
+      if (currentDirectMessage) {
+        console.log('[ChatView] Resetting DM selection');
+        await selectDirectMessage('');
+      }
+
+      console.log('[ChatView] Character chat ready');
+    } catch (err) {
+      console.error('[ChatView] Error in handleCharacterSelect:', err);
+      showToast('Failed to load character dialogues', 'error');
+    }
+  };
+
+  const handlePlayMessage = async (messageId: string, messageContent: string) => {
+    try {
+      if (!currentCharacter) {
+        console.log('[ChatView] No character selected');
+        return;
+      }
+      
+      console.log('[ChatView] Playing message:', { 
+        messageContent: messageContent.substring(0, 50), 
+        currentCharacter,
+        characterDetails: CHARACTERS[currentCharacter],
+        characterExists: !!CHARACTERS[currentCharacter],
+        availableCharacters: Object.keys(CHARACTERS)
+      });
+      
+      setIsGeneratingAudio(messageId);
+      const audioUrl = await audioService.generateSpeech(messageContent, currentCharacter);
+      console.log('[ChatView] Audio URL received:', audioUrl);
+      setAudioPlayingMessageId(messageId);
+      setIsGeneratingAudio(null);
+      audioService.playAudio(audioUrl);
+    } catch (error) {
+      console.error('[ChatView] Error playing message:', error);
+      showToast('Failed to play message', 'error');
+      setIsGeneratingAudio(null);
+    }
+  };
+
   if (!currentUser) {
     return null;
   }
@@ -173,7 +292,15 @@ export default function ChatView() {
         
           <div className="space-y-1">
             {channels
-              .filter(channel => !channel.isAIChannel)
+              .filter(channel => 
+                !channel.id.startsWith('ai-chat-') && 
+                !channel.name.includes('AI Assistant') && 
+                !channel.name.includes('Patrick Bateman') &&
+                !channel.name.includes('Tyler Durden') &&
+                !channel.name.includes('Bruce Wayne') &&
+                !channel.name.includes('Bane') &&
+                !channel.name.includes('Joker')
+              )
               .map(channel => (
               <button
                 key={channel.id}
@@ -189,6 +316,29 @@ export default function ChatView() {
             ))}
           </div>
           
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Your AI</h2>
+            </div>
+
+            <div className="space-y-1">
+              {Object.values(CHARACTERS).map(character => (
+                <button
+                  key={character.id}
+                  onClick={() => handleCharacterSelect(character.id)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                    currentCharacter === character.id
+                      ? 'bg-primary text-primary-content'
+                      : 'hover:bg-base-300'
+                  }`}
+                >
+                  <span className="text-2xl">{character.emoji}</span>
+                  <span>{character.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Direct Messages</h2>
@@ -221,26 +371,6 @@ export default function ChatView() {
               })}
             </div>
           </div>
-
-          {/* Avatars Section */}
-          <div className="mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Avatars</h2>
-            </div>
-            <div className="space-y-1">
-              <button
-                onClick={() => selectChannel('ai-chat')}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                  currentChannel?.id === 'ai-chat'
-                    ? 'bg-primary text-primary-content'
-                    : 'hover:bg-base-300'
-                }`}
-              >
-                <span className="text-xl">🤖</span>
-                Your AI
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* User Profile */}
@@ -253,59 +383,39 @@ export default function ChatView() {
         <div className="flex-1 flex flex-col bg-base-100">
         {/* Header */}
           <div className="border-b border-base-300 p-4 flex justify-between items-center">
-          <div>
+            <div>
               <h1 className="text-xl font-bold">
-                {currentChannel ? `#${currentChannel.name}` : currentDirectMessage ? users[currentDirectMessage.participants.find(id => id !== currentUser?.uid) || '']?.displayName : ''}
+                {currentChannel ? (
+                  `#${currentChannel.name}`
+                ) : currentDirectMessage ? (
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${isUserOnline(currentDirectMessage.participants.find(id => id !== currentUser?.uid) || '') ? 'bg-success' : 'bg-base-content/20'}`} />
+                    {users[currentDirectMessage.participants.find(id => id !== currentUser?.uid) || '']?.displayName}
+                  </div>
+                ) : currentCharacter ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{CHARACTERS[currentCharacter].emoji}</span>
+                    {CHARACTERS[currentCharacter].name}
+                  </div>
+                ) : ''}
               </h1>
               {currentChannel?.description && (
                 <p className="text-sm text-base-content/60">{currentChannel.description}</p>
-            )}
-            {currentDirectMessage && (
-                <p className="text-sm text-base-content/60 flex items-center gap-2">
-                  {(() => {
-                    const otherUserId = currentDirectMessage.participants.find(id => id !== currentUser?.uid);
-                    if (!otherUserId) return null;
-                    
-                    const status = getUserStatus(otherUserId) as UserStatusType;
-                    const statusColors: Record<UserStatusType, string> = {
-                      'online': 'text-success',
-                      'away': 'text-warning',
-                      'dnd': 'text-error',
-                      'offline': 'text-base-content/60'
-                    };
-                    const statusLabels: Record<UserStatusType, string> = {
-                      'online': 'Active now',
-                      'away': 'Away',
-                      'dnd': 'Do Not Disturb',
-                      'offline': 'Offline'
-                    };
-                    
-                    return (
-                      <>
-                        <span className={`flex items-center gap-1 ${statusColors[status]}`}>
-                          <div className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-success' : status === 'away' ? 'bg-warning' : status === 'dnd' ? 'bg-error' : 'bg-base-content/20'}`} />
-                          {statusLabels[status]}
-                        </span>
-                        {status === 'offline' && (
-                          <>
-                            <span>•</span>
-                            <span>Last seen {new Date(getLastSeen(otherUserId)).toLocaleString()}</span>
-                          </>
-                        )}
-                      </>
-                    );
-                  })()}
+              )}
+              {currentCharacter && (
+                <p className="text-sm text-base-content/60">
+                  {CHARACTERS[currentCharacter].description || 'AI Character'}
                 </p>
-            )}
-          </div>
+              )}
+            </div>
             
             <div className="join">
-                <input
-                  type="text"
-                  placeholder="Search messages..."
+              <input
+                type="text"
+                placeholder="Search messages..."
                 className="input input-bordered join-item"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
               <button 
@@ -313,118 +423,104 @@ export default function ChatView() {
                 onClick={handleSearch}
               >
                 Search
-                </button>
+              </button>
+            </div>
           </div>
-        </div>
 
         {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-16rem)]">
-            {!currentChannel && !currentDirectMessage ? (
+            {!currentChannel && !currentDirectMessage && !currentCharacter ? (
               <div className="h-full flex flex-col items-center justify-center">
                 <h1 className="text-4xl font-bold mb-2">Welcome to Tribe</h1>
                 <p className="text-base-content/60">Select a Channel, DM, or Avatar</p>
               </div>
             ) : (
-              messages
-                .filter(message => !message.threadId)
-                .map((message) => (
-              <div key={message.id} className={`chat ${message.userId === currentUser?.uid ? 'chat-end' : 'chat-start'}`}>
-                <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
-                    <img 
-                      src={users[message.userId]?.photoURL || `https://ui-avatars.com/api/?name=${users[message.userId]?.displayName || 'Unknown'}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="chat-header">
-                  {users[message.userId]?.displayName}
-                  <time className="text-xs opacity-50 ml-2">
-                    {new Date(message.createdAt).toLocaleTimeString()}
-                  </time>
-                </div>
-                <div className="chat-bubble">
-                  {message.content}
-                  {message.attachments?.map((attachment, index) => (
-                    <div key={index} className="mt-2">
-                      {attachment.type.startsWith('image/') ? (
-                        <img src={attachment.url} alt={attachment.name} className="max-w-xs rounded-lg" />
-                      ) : (
-                        <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="link link-primary">
-                          {attachment.name}
-                        </a>
-                      )}
-                    </div>
-                  ))}
-        </div>
-                <div className="chat-footer flex gap-1 mt-1">
-                  <div className="opacity-50">
-                    {Object.entries(message.reactions || {})
-                      .filter(([, userList]) => (userList as string[]).length > 0)
-                      .map(([emoji, users]) => (
-                <button
-                        key={emoji}
-                        onClick={() => {
-                          if ((users as string[]).includes(currentUser?.uid)) {
-                            removeReaction(message.id, emoji);
-                          } else {
-                            addReaction(message.id, emoji);
-                          }
-                        }}
-                        className={`btn btn-xs ${(users as string[]).includes(currentUser?.uid) ? 'btn-primary' : 'btn-ghost'}`}
-                      >
-                        {emoji} {(users as string[]).length}
-                </button>
-                    ))}
-              </div>
-                  <div className="dropdown dropdown-top relative">
-                    <button 
-                      className="btn btn-xs btn-ghost opacity-50 hover:opacity-100"
-                      onClick={() => {
-                        if (showReactionPicker === message.id) {
-                          setShowReactionPicker(null);
-                        } else {
-                          setShowReactionPicker(message.id);
-                        }
-                      }}
-                    >
-                      +
-                    </button>
-                    {showReactionPicker === message.id && (
-                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-                        <div className="bg-base-100 rounded-lg shadow-xl">
-                  <Picker
-                    data={data}
-                            onEmojiSelect={(emoji: EmojiPickerResult) => handleReactionSelect(message.id, emoji)}
-                            theme="light"
-                            previewPosition="top"
-                            skinTonePosition="none"
-                          />
-                        </div>
+              messages.map((message) => (
+                <div key={message.id} className={`chat ${message.userId === currentUser?.uid ? 'chat-end' : 'chat-start'}`}>
+                  <div className="chat-image avatar">
+                    {message.userId.startsWith('ai-') && currentCharacter ? (
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-2xl bg-base-200">
+                        <div className="flex items-center justify-center w-full h-full -mt-0.5">{CHARACTERS[currentCharacter].emoji}</div>
+                      </div>
+                    ) : (
+                      <div className="w-10 rounded-full cursor-pointer" 
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (message.userId !== currentUser?.uid && !message.userId.startsWith('ai-')) {
+                               selectDirectMessage(message.userId);
+                             }
+                           }}>
+                        <img 
+                          src={users[message.userId]?.photoURL || `https://ui-avatars.com/api/?name=${users[message.userId]?.displayName || 'User'}`}
+                          alt={users[message.userId]?.displayName || 'User'} 
+                        />
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => {
-                      if (selectedThread?.id === message.id) {
-                        setSelectedThread(null);
-                      } else {
-                        setSelectedThread(message);
-                      }
-                    }}
-                    className="btn btn-xs btn-ghost opacity-50 hover:opacity-100"
-                  >
-                    💬 {messages.filter(m => m.threadId === message.id).length}
-                  </button>
+                  <div className="chat-header">
+                    {message.userId.startsWith('ai-') && currentCharacter 
+                      ? CHARACTERS[currentCharacter].name
+                      : users[message.userId]?.displayName || 'User'}
+                    <time className="text-xs opacity-50 ml-2">
+                      {new Date(message.createdAt).toLocaleTimeString()}
+                    </time>
+                  </div>
+                  <div className="chat-bubble">{message.content}</div>
+                  {message.userId.startsWith('ai-') && (
+                    <div className="chat-footer opacity-50 hover:opacity-100 transition-opacity">
+                      {isGeneratingAudio === message.id ? (
+                        <div className="loading loading-spinner loading-xs"></div>
+                      ) : audioPlayingMessageId === message.id ? (
+                        <AudioPlayer 
+                          audioUrl={audioService.getCurrentAudioUrl() || ''}
+                          onClose={() => {
+                            audioService.stopAudio();
+                            setAudioPlayingMessageId(null);
+                          }}
+                        />
+                      ) : (
+                        <button 
+                          className="btn btn-circle btn-ghost btn-xs" 
+                          title="Play message"
+                          onClick={() => handlePlayMessage(message.id, message.content)}
+                        >
+                          <span className="text-lg">▶️</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {message.attachments && message.attachments.length > 0 && (
+                    <div className="chat-attachments mt-2 space-y-2">
+                      {message.attachments.map((attachment, index) => (
+                        <div key={index}>
+                          {attachment.type.startsWith('image/') ? (
+                            <img 
+                              src={attachment.url} 
+                              alt="attachment" 
+                              className="max-w-sm rounded-lg shadow-lg"
+                            />
+                          ) : (
+                            <a 
+                              href={attachment.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="link link-primary"
+                            >
+                              {attachment.name}
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))
+              ))
             )}
           </div>
 
-          {/* Message Input - Only show if we have an active channel or DM and no thread is selected */}
-          {!selectedThread && (currentChannel || currentDirectMessage) && (
-            <form onSubmit={handleSendMessage} className="border-t border-base-300 px-2 py-3 bg-base-100">
+          {/* Message Input - Only show if we have an active channel, DM, or character and no thread is selected */}
+          {!selectedThread && (currentChannel || currentDirectMessage || currentCharacter) && (
+            <form onSubmit={handleSubmit} className="border-t border-base-300 px-2 py-3 bg-base-100">
               <div className="flex items-center gap-1">
                 <div className="flex-1">
                   {selectedFiles.length > 0 && (
@@ -446,12 +542,7 @@ export default function ChatView() {
               <textarea
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e);
-                  }
-                }}
+                onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
                 className="textarea textarea-bordered w-full resize-none h-20 min-h-[5rem] py-2"
               />
@@ -521,7 +612,13 @@ export default function ChatView() {
               {/* Parent Message */}
               <div className={`chat ${selectedThread.userId === currentUser?.uid ? 'chat-end' : 'chat-start'}`}>
                 <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
+                  <div className="w-10 rounded-full cursor-pointer"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         if (selectedThread.userId !== currentUser?.uid && !selectedThread.userId.startsWith('ai-')) {
+                           selectDirectMessage(selectedThread.userId);
+                         }
+                       }}>
                     <img 
                       src={users[selectedThread.userId]?.photoURL || `https://ui-avatars.com/api/?name=${users[selectedThread.userId]?.displayName || 'Unknown'}`}
                       className="w-full h-full object-cover"
@@ -604,7 +701,13 @@ export default function ChatView() {
                 .map(message => (
                   <div key={message.id} className={`chat ${message.userId === currentUser?.uid ? 'chat-end' : 'chat-start'}`}>
                     <div className="chat-image avatar">
-                      <div className="w-10 rounded-full">
+                      <div className="w-10 rounded-full cursor-pointer"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (message.userId !== currentUser?.uid && !message.userId.startsWith('ai-')) {
+                               selectDirectMessage(message.userId);
+                             }
+                           }}>
                         <img 
                           src={users[message.userId]?.photoURL || `https://ui-avatars.com/api/?name=${users[message.userId]?.displayName || 'Unknown'}`}
                           className="w-full h-full object-cover"

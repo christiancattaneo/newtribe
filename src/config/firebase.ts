@@ -1,9 +1,11 @@
+/// <reference types="vite/client" />
+
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getDatabase } from 'firebase/database';
-import { getAnalytics } from "firebase/analytics";
+import { getAuth, inMemoryPersistence, setPersistence, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getDatabase, connectDatabaseEmulator } from 'firebase/database';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,28 +14,31 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
-// Email link authentication settings
-export const actionCodeSettings = {
-  url: `${import.meta.env.VITE_APP_URL}/finishSignIn`,
-  handleCodeInApp: true,
-};
+console.log('[Firebase Config] Using API Key:', import.meta.env.VITE_FIREBASE_API_KEY);
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const functions = getFunctions(app);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const rtdb = getDatabase(app);
+// Configure auth settings
+setPersistence(auth, inMemoryPersistence);
 
-// Only initialize analytics in browser environment
-let analytics;
-if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
+const db = getFirestore(app);
+const rtdb = getDatabase(app);
+const storage = getStorage(app);
+
+// Connect to emulators in development
+if (import.meta.env.DEV) {
+  console.log('[Firebase Config] Connecting to emulators');
+  connectAuthEmulator(auth, 'http://localhost:9099');
+  connectFunctionsEmulator(functions, 'localhost', 5001);
+  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectDatabaseEmulator(rtdb, 'localhost', 9000);
+  connectStorageEmulator(storage, 'localhost', 9199);
 }
-export { analytics };
 
-export default app; 
+export { app, auth, db, rtdb, storage, functions }; 
